@@ -1,5 +1,5 @@
 ---
-title: "function_chart"
+title: "Functional Distribution"
 author: "Sitler"
 date: "2025-05-02"
 output: word_document
