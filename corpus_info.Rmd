@@ -1,0 +1,60 @@
+---
+title: "Corpus Info"
+author: "Sitler"
+date: "2025-04-30"
+output: word_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(tidyr)
+library(gt)
+library(dplyr)
+
+lb_data <- read.csv("~/Statistics Practice/lb_info.csv")
+
+corpus_info <- lb_data[, c("Sub.Corpus", "Total.Tokens", "Total.Files")] %>%
+  distinct(Sub.Corpus, .keep_all = TRUE) %>%
+  mutate(
+    Total.Tokens = as.numeric(gsub("[^0-9.]", "", Total.Tokens)),
+    Tokens.Per.File = Total.Tokens / Total.Files
+  )
+
+avg_tokens <- corpus_info %>%
+  group_by(Sub.Corpus) %>%
+  summarise(Average.Tokens.Per.File = mean(Tokens.Per.File, na.rm = TRUE))
+
+
+corpus_info <- left_join(corpus_info, avg_tokens, by = "Sub.Corpus")
+```
+
+```{r}
+
+ordered_levels <- c("J-WE", "J-SM", "ENS-WE", "ENS-SM")
+
+long_table <- corpus_info %>%
+  filter(Sub.Corpus %in% ordered_levels) %>%
+  mutate(Sub.Corpus = factor(Sub.Corpus, levels = ordered_levels)) %>%
+  select(Sub.Corpus, Total.Tokens, Total.Files, Average.Tokens.Per.File) %>%
+  pivot_longer(cols = -Sub.Corpus, names_to = "Metric", values_to = "Value") %>%
+  mutate(Metric = recode(Metric,
+                         Total.Tokens = "Total Tokens",
+                         Total.Files = "Total Files",
+                         Average.Tokens.Per.File = "Average Tokens per File"))
+
+wide_table <- pivot_wider(long_table, names_from = Sub.Corpus, values_from = Value)
+
+wide_table %>%
+  gt() %>%
+  fmt_number(columns = -Metric, decimals = 2, use_seps = TRUE) %>%
+  cols_label(Metric = "") %>%
+  tab_header(
+    title = md("**Table 1**"),
+    subtitle = md("_ICNALE Sub-corpora_")
+  ) %>%
+  tab_options(
+    table.font.size = 12,
+    heading.align = "left",
+    table.align = "center"
+  )
+```
