@@ -1,0 +1,89 @@
+---
+title: "top_20_frequency"
+author: "Sitler"
+date: "2025-04-30"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(flextable)
+library(officer)
+library(dplyr)
+library(tidyr)
+
+lb_data <- read.csv("LB.csv")
+
+lb_data <- lb_data[, c("sub_corpus", "bundle", "relative_frequency", "prompt_based_bundle")]
+
+# Create a table where sub_corpus types are the columns
+table_data <- lb_data %>%
+  group_by(bundle, sub_corpus) %>%
+  summarize(relative_frequency = sum(relative_frequency), .groups = "drop") %>%
+  pivot_wider(names_from = sub_corpus, values_from = relative_frequency, values_fill = 0)
+
+
+# Select the top 20 bundles for each specific sub_corpus
+top20_bundles <- do.call(rbind, lapply(split(lb_data, lb_data$sub_corpus), function(group) {
+  group <- group[order(-group$relative_frequency), ]
+  head(group, 20)
+}))
+
+# Create a table with sub_corpus as columns and rows showing the top 20 bundles for each sub-corpus
+top20_table <- split(top20_bundles$bundle, top20_bundles$sub_corpus)
+top20_table
+
+top20_table <- do.call(cbind, lapply(top20_table, function(bundles) {
+  length(bundles) <- 20  # Ensure each column has 20 rows
+  return(bundles)
+}))
+
+# Convert to a data frame and set column names
+top20_table <- as.data.frame(top20_table, stringsAsFactors = FALSE)
+colnames(top20_table) <- unique(top20_bundles$sub_corpus)
+
+# Reorder the columns of the top20_table to match the desired order
+sub_corpus_order <- c("J-SM", "J-WE", "ENS-SM", "ENS-WE")
+top20_table <- top20_table[, sub_corpus_order, drop = FALSE]
+```
+
+
+
+```{r}
+# Add rank column for clarity
+top20_table <- top20_table %>%
+  mutate(Rank = 1:20) %>%
+  relocate(Rank)
+
+# Convert to flextable
+ft <- flextable(top20_table) %>%
+  set_header_labels(
+    Rank = "Rank",
+    `J-SM` = "J-SM",
+    `J-WE` = "J-WE",
+    `ENS-SM` = "ENS-SM",
+    `ENS-WE` = "ENS-WE"
+  ) %>%
+   
+  width(width = c(0.8, 1, 1, 1, 1)) %>% 
+  fit_to_width(max_width = 7, unit = "in") %>%
+  
+  border_remove() %>%  
+  hline_top(part = "all", border = fp_border(width = 1)) %>%
+  hline_bottom(part = "all", border = fp_border(width = 1)) %>%
+  vline(border = fp_border(width = 0.5)) %>%  
+  
+  autofit() %>%
+  fontsize(size = 11, part = "all") %>%
+  bold(part = "header") %>%
+  align(align = "center", part = "all") %>%
+  theme_booktabs()  # Booktabs already has clean borders
+
+ft
+```
+
+
+
+
+
+
