@@ -11,7 +11,7 @@ library(dplyr)
 library(tidyr)
 library(flextable)
 
-lb_data <- read.csv("~/Statistics Practice/LB.csv")
+lb_data <- read.csv("LB.csv")
 
 prompt_data <- lb_data[, c("sub_corpus", "frequency", "prompt_based_bundle")]
 
