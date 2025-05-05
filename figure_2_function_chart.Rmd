@@ -1,0 +1,57 @@
+---
+title: "function_chart"
+author: "Sitler"
+date: "2025-05-02"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(forcats)
+library(extrafont)
+lb_data <- read.csv("LB.csv", header = TRUE)
+
+lb_data$Function <- factor(lb_data$function.)
+lb_data <- lb_data %>%
+    mutate(
+      sub_corpus = fct_relevel(sub_corpus, "J-WE", "J-SM", "ENS-WE", "ENS-SM"),
+      function. = fct_relevel(function., "SE", "RF", "DO")
+    )
+
+lb_function <- lb_data[, c("sub_corpus", "function.", "frequency")]
+
+```
+
+
+
+```{r}
+plot_final <- ggplot(lb_function, aes(x = sub_corpus, y = frequency, fill = function.)) +
+  geom_col(position = "fill", width = 0.8, color = NA, linewidth = 0) +
+  labs(x = "Sub-corpora", y = "Frequency", fill = NULL) +
+  scale_y_continuous(labels = scales::percent, expand = c(0, 0)) +
+  scale_fill_manual(values = c("orange", "blue", "darkgreen")) +
+  theme_minimal(base_family = "Times New Roman") +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "white", color = NA),
+    plot.background = element_rect(fill = "white", color = NA),
+    axis.ticks.length = unit(0, "pt"),
+    text = element_text(size = 15, color = "black"),
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size = 15),
+    legend.text = element_text(size = 15),
+    legend.title = element_text(size = 15),
+    axis.line = element_line(linewidth = 0),
+    legend.position = "bottom",
+    panel.border = element_blank(),
+    panel.spacing = unit(0, "pt")
+  )
+
+plot_final
+
+
+
+```
