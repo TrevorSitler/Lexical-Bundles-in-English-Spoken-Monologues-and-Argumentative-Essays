@@ -13,7 +13,7 @@ library(forcats)
 library(extrafont)
 
 
-lb_data <- read.csv("~/Statistics Practice/LB.csv", header = TRUE)
+lb_data <- read.csv("LB.csv", header = TRUE)
 
 lb_data$Structure <- factor(lb_data$structure)
 lb_data <- lb_data %>%
