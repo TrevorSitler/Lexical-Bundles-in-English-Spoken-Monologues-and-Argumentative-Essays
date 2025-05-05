@@ -1,0 +1,58 @@
+---
+title: "Shared Bundles"
+author: "Sitler"
+date: "2025-05-03"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(flextable)
+library(dplyr)
+library(officer)
+lb_data <- read.csv("LB.csv")
+
+lb_data$bundle
+
+lb_data <- lb_data[, c("sub_corpus", "bundle", "relative_frequency", "prompt_based_bundle")]
+
+table_data <- aggregate(relative_frequency ~ bundle + sub_corpus, data = lb_data, FUN = sum)
+table_data <- xtabs(relative_frequency ~ bundle + sub_corpus, data = table_data)
+table_data <- as.data.frame.matrix(table_data)
+
+selected_bundles <- c("a lot of money", "a lot of people", "do n't want to", "I do n't know", "I do n't think", "I think it is", "I think smoking should", "I think that it", "I think that smoking", "people who do n't", "should have a part-time", "think that it is", "think that smoking should")
+table_data <- table_data[rownames(table_data) %in% selected_bundles, ]
+table_data
+
+missing_bundles <- c("do n't want to", "I do n't know", "I do n't think", "people who do n't")
+missing_in_lb_data <- missing_bundles %in% lb_data$bundle
+missing_in_lb_data
+
+column_order <- c("J-SM", "J-WE", "ENS-SM", "ENS-WE")
+table_data <- table_data[, column_order]
+
+
+table_data <- round(table_data)
+```
+
+```{r, echo=FALSE}
+table_data$bundle <- rownames(table_data)
+table_data <- table_data[, c("bundle", "J-SM", "J-WE", "ENS-SM", "ENS-WE")]
+
+ft <- flextable(table_data) |>
+  set_header_labels(bundle = "Bundle") |>
+  width(width = c(0.8, 1, 1, 1, 1)) |>  
+  fit_to_width(max_width = 7, unit = "in") |>
+  border_remove() |>
+  hline_top(part = "all", border = fp_border(width = 1)) |>
+  hline_bottom(part = "all", border = fp_border(width = 1)) |>
+  vline(border = fp_border(width = 0.5)) |>
+
+  autofit() |>
+  fontsize(size = 11, part = "all") |>
+  bold(part = "header") |>
+  align(align = "center", part = "all") |>
+  theme_booktabs()
+
+ft
+```
