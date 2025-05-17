@@ -25,6 +25,10 @@ contingency_table
 contingency_matrix <- as.matrix(contingency_table[-1])  # Drop the first column (Sub.Corpus)
 rownames(contingency_matrix) <- contingency_table$sub_corpus
 
+cramers_v <- CramerV(contingency_matrix)
+
+cramers_v
+
 chi2_test <- chisq.test(contingency_matrix)  # or use `contingency_matrix`
 chi2_test
 
