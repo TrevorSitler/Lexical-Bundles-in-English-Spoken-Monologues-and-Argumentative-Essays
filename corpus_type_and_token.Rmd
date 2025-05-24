@@ -1,0 +1,59 @@
+---
+title: "corpus_type_and_token"
+author: "Sitler"
+date: "2025-05-24"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+setwd("/Users/sitler/Statistics Practice")
+library(flextable)
+library(dplyr)
+lb_data <- read.csv("lb.csv")
+
+
+lb_data %>%
+    group_by(sub_corpus) %>%
+    summarise(bundle_type = sum(!is.na(bundle)))
+
+lb_data <- lb_data %>%
+  group_by(sub_corpus) %>%
+  mutate(bundle_type = sum(!is.na(bundle))) %>%
+  mutate(total_raw_frequency = sum(frequency, na.rm = TRUE)) %>%
+  ungroup()
+lb_data
+
+corpus_type_and_token <- lb_data[, c("sub_corpus", "bundle_type", "total_raw_frequency")] %>%
+    distinct(sub_corpus, bundle_type, total_raw_frequency, .keep_all = TRUE)
+
+# Reorder rows based on the specified order
+corpus_type_and_token <- corpus_type_and_token %>%
+  mutate(sub_corpus = factor(sub_corpus, levels = c("J-WE", "J-SM", "ENS-WE", "ENS-SM"))) %>%
+  arrange(sub_corpus)
+
+corpus_type_and_token
+
+
+
+```
+
+
+```{r echo= TRUE}
+ft <- flextable(corpus_type_and_token)
+
+ft <- ft |>
+  set_header_labels(
+    sub_corpus = "Sub-corpus",
+    bundle_type = "Bundle Type",
+    total_raw_frequency = "Total Raw Frequency"
+  ) |>
+  autofit() |>
+  theme_vanilla()
+
+ft
+```
+
+```{r}
+
+```
