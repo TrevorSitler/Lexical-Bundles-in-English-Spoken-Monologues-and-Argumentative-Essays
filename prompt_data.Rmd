@@ -1,0 +1,64 @@
+---
+title: "Chi-Squared Test for Prompt Bundles"
+author: "Sitler"
+date: "2025-04-30"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(tidyr)
+library(flextable)
+library(DescTools)
+library(tibble)
+
+lb_data <- read.csv("~/Statistics Practice/LB.csv", header = TRUE)
+
+prompt_data <- lb_data[, c("sub_corpus", "frequency", "prompt_based_bundle")]
+
+contingency_table <- prompt_data %>%
+  group_by(sub_corpus, prompt_based_bundle) %>%
+  summarise(Total = sum(frequency), .groups = 'drop') %>%
+  mutate(Total = round(Total, digits = 0)) %>%  # Round here
+  pivot_wider(names_from = prompt_based_bundle, values_from = Total)
+
+contingency_table
+
+contingency_matrix <- as.matrix(contingency_table[-1])  
+rownames(contingency_matrix) <- contingency_table$sub_corpus
+
+contingency_matrix
+
+
+
+cramers_v <- CramerV(contingency_matrix)
+
+cramers_v
+
+chi2_test <- chisq.test(contingency_matrix)  # or use `contingency_matrix`
+chi2_test
+
+chi2_test$expected
+chi2_test$observed
+chi2_test$residuals
+
+
+
+
+
+```
+
+```{r}
+contingency_df <- as.data.frame(contingency_matrix)
+contingency_df <- rownames_to_column(contingency_df, var = "Sub-Corpus")
+
+# Create the flextable
+flextable(contingency_df) %>%
+  set_header_labels(
+    `non_prompt_based_bundle` = "Non-Prompt-Based Bundle",
+    `prompt_based_bundle` = "Prompt-Based Bundle"
+  ) %>%
+  autofit()
+```
+
