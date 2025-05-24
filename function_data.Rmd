@@ -1,0 +1,75 @@
+---
+title: "function_data"
+author: "Sitler"
+date: "2025-05-24"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(flextable)
+library(DescTools)
+
+lb_data <- read.csv("~/Statistics Practice/LB.csv", header = TRUE)
+
+function_data <- lb_data[, c("sub_corpus", "function.", "frequency")]
+
+function_data
+
+contingency_table <- function_data %>%
+  group_by(sub_corpus, function.) %>%
+  summarise(Total = sum(frequency), .groups = 'drop') %>%
+  mutate(Total = round(Total, digits = 0)) %>%  # Round here
+  pivot_wider(names_from = function., values_from = Total)
+
+contingency_matrix <- as.matrix(contingency_table[-1])  # Drop the first column (Sub.Corpus)
+rownames(contingency_matrix) <- contingency_table$sub_corpus
+
+cramers_v <- CramerV(contingency_matrix)
+
+cramers_v
+
+
+
+chi2_test <- chisq.test(contingency_matrix)  # or use `contingency_matrix`
+chi2_test
+
+chi2_test$expected
+chi2_test$observed
+chi2_test$residuals
+
+observed <- chi2_test$observed
+expected <- chi2_test$expected
+std_residuals <- chi2_test$residuals
+
+function_data <- chi2_test$observed  
+
+function_data_df <- as.data.frame(function_data)
+function_data_df <- tibble::rownames_to_column(function_data_df, var = "Sub-Corpus")
+
+function_data_df
+
+
+
+```
+
+
+```{r}
+function_data_df <- function_data_df[, c("Sub-Corpus", "SE", "RF", "DO")]
+
+flextable(function_data_df) %>%
+  autofit() %>%
+  theme_vanilla()
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
