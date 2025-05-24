@@ -12,7 +12,7 @@ library(tidyr)
 library(flextable)
 library(DescTools)
 
-lb_data <- read.csv("~/Statistics Practice/LB.csv", header = TRUE)
+lb_data <- read.csv("LB.csv", header = TRUE)
 
 function_data <- lb_data[, c("sub_corpus", "function.", "frequency")]
 
@@ -31,8 +31,6 @@ cramers_v <- CramerV(contingency_matrix)
 
 cramers_v
 
-
-
 chi2_test <- chisq.test(contingency_matrix)  # or use `contingency_matrix`
 chi2_test
 
@@ -50,9 +48,6 @@ function_data_df <- as.data.frame(function_data)
 function_data_df <- tibble::rownames_to_column(function_data_df, var = "Sub-Corpus")
 
 function_data_df
-
-
-
 ```
 
 
@@ -63,13 +58,3 @@ flextable(function_data_df) %>%
   autofit() %>%
   theme_vanilla()
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
