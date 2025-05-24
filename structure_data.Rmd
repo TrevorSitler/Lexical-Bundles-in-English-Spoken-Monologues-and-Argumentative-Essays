@@ -12,7 +12,7 @@ library(tidyr)
 library(flextable)
 library(DescTools)
 
-lb_data <- read.csv("~/Statistics Practice/LB.csv", header = TRUE)
+lb_data <- read.csv("LB.csv", header = TRUE)
 
 structure_data <- lb_data[, c("sub_corpus", "structure", "frequency")]
 
@@ -23,8 +23,6 @@ contingency_table <- structure_data %>%
   pivot_wider(names_from = structure, values_from = Total)
 
 contingency_table
-
-
 
 contingency_matrix <- as.matrix(contingency_table[-1])  # Drop the first column (Sub.Corpus)
 rownames(contingency_matrix) <- contingency_table$sub_corpus
@@ -48,10 +46,6 @@ structure_data_df <- as.data.frame(structure_data)
 structure_data_df <- tibble::rownames_to_column(structure_data_df, var = "Sub-Corpus")
 
 structure_data_df
-
-
-
-
 ```
 ```{r}
 structure_data_df <- structure_data_df[, c("Sub-Corpus", "VP", "NP/PP", "DC")]
