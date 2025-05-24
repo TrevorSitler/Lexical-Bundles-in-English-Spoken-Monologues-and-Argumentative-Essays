@@ -12,7 +12,6 @@ library(flextable)
 library(dplyr)
 lb_data <- read.csv("lb.csv")
 
-
 lb_data %>%
     group_by(sub_corpus) %>%
     summarise(bundle_type = sum(!is.na(bundle)))
@@ -27,7 +26,6 @@ lb_data
 corpus_type_and_token <- lb_data[, c("sub_corpus", "bundle_type", "total_raw_frequency")] %>%
     distinct(sub_corpus, bundle_type, total_raw_frequency, .keep_all = TRUE)
 
-# Reorder rows based on the specified order
 corpus_type_and_token <- corpus_type_and_token %>%
   mutate(sub_corpus = factor(sub_corpus, levels = c("J-WE", "J-SM", "ENS-WE", "ENS-SM"))) %>%
   arrange(sub_corpus)
